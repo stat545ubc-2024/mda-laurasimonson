@@ -549,7 +549,8 @@ ggplot(vancouver_trees, aes(diameter)) +
     ## Warning: Removed 2 rows containing missing values or values outside the scale range
     ## (`geom_bar()`).
 
-![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-6-1.png)
+<!-- -->
 
 I chose to plot the numeric variable diameter in the vancouver trees
 dataset. I represented this as a bar graph to show how many trees have
@@ -588,7 +589,8 @@ geom_bar(stat = "identity", fill = "cornflowerblue", color = "black") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
 ```
 
-![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-7-1.png)
+<!-- -->
 
 I chose to find the missing values for this dataset because while
 working with the data, I noticed that there were some columns that had
@@ -612,7 +614,8 @@ ggplot(summary_data, aes(x = genus_name, y = avg_height)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 3))
 ```
 
-![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-8-1.png)
+<!-- -->
 
 I chose to find the average height of the trees in each genus of trees
 in the dataset. I represented this as a bar graph to show the height of
@@ -637,7 +640,8 @@ ggplot(vancouver_trees, aes(y = height_range_id))  +
   scale_x_continuous(breaks = NULL)
 ```
 
-![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](MDA-Milestone-1_files/figure-gfm/unnamed-chunk-9-1.png)
+<!-- -->
 
 I chose to create a boxplot to represent the height range of the trees
 in the vancouver trees dataset. The boxplot shows the distribution of
