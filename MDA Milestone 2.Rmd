@@ -1,0 +1,394 @@
+---
+title: "Mini Data Analysis Milestone 2"
+output: github_document
+---
+
+*To complete this milestone, you can either edit [this `.rmd` file](https://raw.githubusercontent.com/UBC-STAT/stat545.stat.ubc.ca/master/content/mini-project/mini-project-2.Rmd) directly. Fill in the sections that are commented out with `<!--- start your work here--->`. When you are done, make sure to knit to an `.md` file by changing the output in the YAML header to `github_document`, before submitting a tagged release on canvas.*
+
+# Welcome to the rest of your mini data analysis project!
+
+In Milestone 1, you explored your data. and came up with research questions. This time, we will finish up our mini data analysis and obtain results for your data by:
+
+-   Making summary tables and graphs
+-   Manipulating special data types in R: factors and/or dates and times.
+-   Fitting a model object to your data, and extract a result.
+-   Reading and writing data as separate files.
+
+We will also explore more in depth the concept of *tidy data.*
+
+**NOTE**: The main purpose of the mini data analysis is to integrate what you learn in class in an analysis. Although each milestone provides a framework for you to conduct your analysis, it's possible that you might find the instructions too rigid for your data set. If this is the case, you may deviate from the instructions -- just make sure you're demonstrating a wide range of tools and techniques taught in this class.
+
+# Instructions
+
+**To complete this milestone**, edit [this very `.Rmd` file](https://raw.githubusercontent.com/UBC-STAT/stat545.stat.ubc.ca/master/content/mini-project/mini-project-2.Rmd) directly. Fill in the sections that are tagged with `<!--- start your work here--->`.
+
+**To submit this milestone**, make sure to knit this `.Rmd` file to an `.md` file by changing the YAML output settings from `output: html_document` to `output: github_document`. Commit and push all of your work to your mini-analysis GitHub repository, and tag a release on GitHub. Then, submit a link to your tagged release on canvas.
+
+**Points**: This milestone is worth 50 points: 45 for your analysis, and 5 for overall reproducibility, cleanliness, and coherence of the Github submission.
+
+**Research Questions**: In Milestone 1, you chose four research questions to focus on. Wherever realistic, your work in this milestone should relate to these research questions whenever we ask for justification behind your work. In the case that some tasks in this milestone don't align well with one of your research questions, feel free to discuss your results in the context of a different research question.
+
+# Learning Objectives
+
+By the end of this milestone, you should:
+
+-   Understand what *tidy* data is, and how to create it using `tidyr`.
+-   Generate a reproducible and clear report using R Markdown.
+-   Manipulating special data types in R: factors and/or dates and times.
+-   Fitting a model object to your data, and extract a result.
+-   Reading and writing data as separate files.
+
+# Setup
+
+Begin by loading your data and the tidyverse package below:
+
+```{r, message = FALSE}
+library(datateachr) # <- might contain the data you picked!
+library(tidyverse)
+```
+
+# Task 1: Process and summarize your data
+
+From milestone 1, you should have an idea of the basic structure of your dataset (e.g. number of rows and columns, class types, etc.). Here, we will start investigating your data more in-depth using various data manipulation functions.
+
+### 1.1 (1 point)
+
+First, write out the 4 research questions you defined in milestone 1 were. This will guide your work through milestone 2:
+
+<!-------------------------- Start your work below ---------------------------->
+
+1.  How does tree species diversity vary across different neighbourhoods of Vancouver?
+2.  Is there a relationship between the age of the trees and how wide their diameter is?
+3.  Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
+4.  Since this data started to be collected, have trends of planting trees susceptible to invasive species(American Elm, Green Ash, White Ash, and Black Ash) declined? 
+<!----------------------------------------------------------------------------->
+
+DElETE
+```{r}
+colnames(vancouver_trees)
+vancouver_trees
+```
+
+Here, we will investigate your data using various data manipulation and graphing functions.
+
+### 1.2 (8 points)
+
+Now, for each of your four research questions, choose one task from options 1-4 (summarizing), and one other task from 4-8 (graphing). You should have 2 tasks done for each research question (8 total). Make sure it makes sense to do them! (e.g. don't use a numerical variables for a task that needs a categorical variable.). Comment on why each task helps (or doesn't!) answer the corresponding research question.
+
+Ensure that the output of each operation is printed!
+
+Also make sure that you're using dplyr and ggplot2 rather than base R. Outside of this project, you may find that you prefer using base R functions for certain tasks, and that's just fine! But part of this project is for you to practice the tools we learned in class, which is dplyr and ggplot2.
+
+**Summarizing:**
+
+1.  Compute the *range*, *mean*, and *two other summary statistics* of **one numerical variable** across the groups of **one categorical variable** from your data.
+2.  Compute the number of observations for at least one of your categorical variables. Do not use the function `table()`!
+3.  Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks! *An example: age in years into "child, teen, adult, senior".*
+4.  Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data. Do not use the function `table()`!
+
+**Graphing:**
+
+5.  Create a graph of your choosing, make one of the axes logarithmic, and format the axes labels so that they are "pretty" or easier to read.
+6.  Make a graph where it makes sense to customize the alpha transparency.
+
+Using variables and/or tables you made in one of the "Summarizing" tasks:
+
+7.  Create a graph that has at least two geom layers.
+8.  Create 3 histograms, with each histogram having different sized bins. Pick the "best" one and explain why it is the best.
+
+Make sure it's clear what research question you are doing each operation for!
+
+<!------------------------- Start your work below ----------------------------->
+#### Question 1: How does tree species diversity vary across different neighbourhoods of Vancouver?
+
+###### 4. Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data. 
+```{r}
+tree_species_count <- vancouver_trees %>%
+  group_by(neighbourhood_name, common_name) %>%
+  summarize(n = n(), .groups = 'drop') %>%
+  group_by(neighbourhood_name) %>%
+  mutate(proportion = n/sum(n))
+print(tree_species_count)
+```
+
+By using the group by function, I was able to sort the vancouver_trees dataset into each of the neighbourhoods and then further sort the data into each species of tree, using their common names, which shows the number of each tree species present in each neighbourhood measured in the vancouver_trees dataset. Then using the mutate function, I was able to find the proportion of each species of tree in each neighbourhood. The proportions for each of the tree species are low, which indicates that the neighbourhoods in vancouver have a high amount of tree species diversity. 
+
+###### 6.  Make a graph where it makes sense to customize the alpha transparency.
+```{r}
+ggplot(tree_species_count, aes(x = neighbourhood_name, y = n)) +
+  geom_jitter(alpha = 0.25, size = 1, color = "blue") +
+  scale_y_continuous(breaks = seq(0, 1000, by = 50)) + 
+  labs(title = "Tree Species in Each Vancouver Neighbourhood", x = "Neighbourhood Name", y = "Number of Trees per Species") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+```
+
+This jitter plot shows the number of trees of each species that are in each of the neighbourhoods in the vancouver_trees dataset. The number of trees of each species was found in the first question, and stored in the variable tree_Species_count. The alpha transparency in this jitter plot shows that most of the tree species in each neighbourhood have less than 50 individual trees, as indicated by the darker blue color. This jitter plot also shows that very few neighbourhoods have tree species with more than 300 individual trees. This plot helps answer the research question, how does tree species diversity vary across neighbourhoods, because the jitter plot shows that the different neighbourhoods have similar numbers of trees and species. All of the neighbourhoods have the highest number of trees per species between 0 and 50, as indicated by the higher density of points. This graph also shows that a few tree species have more than 200 individual trees, which is consistent across the different neighbourhoods as well. Overall, all of the neighbourhoods have a high amount of tree diversity within them. 
+
+
+#### Question 2: Is there a relationship between the age of the trees and how wide their diameter is?
+
+###### 3.  Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks!
+```{r}
+vancouver_trees_age <- vancouver_trees %>%
+  mutate(years_old = as.numeric(difftime(Sys.Date(), date_planted, units = "days")) / 365,
+  age = case_when(
+    years_old < 10 ~ "young",
+    years_old >= 10 & years_old <= 20 ~ "medium", 
+    years_old >= 20 & years_old <= 30 ~ "old", 
+    years_old >= 30 ~ "very old"
+  ))
+print(vancouver_trees_age)
+age_counts <- vancouver_trees_age %>%
+  count(age)
+print(age_counts)
+```
+
+The new categorical variable, age, which has four groups, was created using how old the trees were. The age of trees was measured by a new variable, years_old which was calculated from the date that the trees were planted on. The four groups in the new age category are young, which is less than 10 years old, medium, which is between 10 and 20 years old, old, which is between 20 and 30 years old, and very old, which is trees older than 30 years old. To see the number of trees that fall into each category I used the count function which shows that majority of the trees did not have a data planted recorded, but of the trees that do have a known age, most of the trees are medium or old in age, with young trees being the smallest group. 
+This will help answer the research question because the new age variable tells how old the trees are based on when they were planted, which can be used to determine if older trees have a larger diameter. 
+
+###### 7.  Create a graph that has at least two geom layers.
+```{r}
+ggplot(vancouver_trees_age, aes(x = years_old, y = diameter, color = age)) +
+  geom_point(alpha = 0.5, size = 1) +
+  scale_y_continuous(limits = c(0, 75)) + 
+  theme_minimal() +
+  geom_smooth(method = "lm", color = "black") +
+  labs(title = "Relationship Between Tree Age and Diameter", x = "Age (years)", y = "Diameter")
+```
+This graph shows the relationship between how old the trees in the vancouver_trees dataset are and how wide their diameter is. The units used to measure diameter are unknown, and were not provided in the dataset. From the line of best fit shown in black, we can see that there is a trend of increasing diameter size with an increase in age of the trees. This graph helps answer the research question, is there a relationship between tree age and diameter size, because it shows that there is a positve correlation between age of the trees and their diameter size, as the old and very old trees have larger diameters and the young trees have smaller diameters. 10 trees were removed from this dataset to make the graph easier to read, as there were 10 trees with diameters above 100, which made the line of best fit not visible.  
+
+Question 3: Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
+
+3.  Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks
+```{r}
+vancouver_trees_size <- vancouver_trees %>%
+  mutate(size = case_when(
+    height_range_id < 3 & diameter < 20 ~ "Small",
+    height_range_id >= 3 & height_range_id < 4 & diameter < 40 ~ "Medium", 
+    height_range_id >= 4 & diameter >= 40 ~ "Large"
+  ))
+vancouver_trees_size %>%
+group_by(size) %>%
+  summarize(n = n())
+print(vancouver_trees_size)
+```
+
+To answer the research question, is there a correlation between tree species and size of the tree, determined by height and diameter, I created a new categorical variable, size, using two numeric variables, height_range_id and diameter. The size variable has 3 groups, small, which is trees with a height ID of less than 3 and a diameter of less than 20, medium, which includes trees with a height range of 3 and 4 and diameter of between 20 and 40, and large trees which includes trees with a height ID of 4 and 5 and a diameter of larger than 40. The units of diameter and how tall each of the height range IDs are were not given in the dataset. I chose to create this dataset with two numeric variables instead of 1 so that size, which combines height and diameter, can be used in the second question to further answer the research question. 
+
+6.  !!!
+
+```{r}
+
+```
+
+
+####Question 4: Since this data started to be collected, have trends of planting trees susceptible to invasive species(American Elm, Green Ash and White Ash) declined? 
+
+######4.  Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data. Do not use the function `table()`!
+```{r}
+susceptible_trees <- vancouver_trees_age %>%
+  filter(common_name == "AMERICAN ELM" |
+         common_name == "GREEN ASH" |
+         common_name == "WHITE ASH" )
+print(susceptible_trees)
+
+species_age <- susceptible_trees %>%
+  group_by(common_name, age) %>%
+  summarize(count = n()) %>%
+  mutate(proportion = count/sum(count))
+print(species_age)
+```
+To answer this research question, I first created a new tibble that contains only the species of interest, American Elm, Green Ash and White Ash. American Elm trees are susceptible to Dutch Elm Disease and Ash trees native to Canada, Green and White Ash, are susceptible to Emerald Ash Borer. In an effort to reduce the effect of these invasive species and stop their spread, many cities stopped planting these trees in more recent years, which is where my research question comes from. 
+The count column shows the number of trees per species in each age category. From this, we can see that most of the trees in each species are in the old category and none of the species are in the young category, which is less than 10 years old. The proportions of the number of trees in each age category per species also shows that most of the trees are in the old category. These findings support the research question that there has been a decline in planting susceptible trees, as there are no young trees and fewer medium aged trees compared to old and very old trees. 
+
+5.  Create a graph of your choosing, make one of the axes logarithmic, and format the axes labels so that they are "pretty" or easier to read.
+```{r}
+ggplot(species_age, aes(x = factor(age, levels = c("young", "medium", "old", "very old", "NA")),, y = count, fill = common_name)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_log10() +
+  labs(title = "Proportion of Susceptible Tree Species", 
+       x = "Common Name", 
+       y = "Count (Log Scale)", 
+       fill = "Tree Species") +
+  scale_fill_manual(values = c("AMERICAN ELM" = "orchid", 
+                               "GREEN ASH" = "skyblue",
+                               "WHITE ASH" = "palegreen")) + 
+  theme_minimal()
+```
+Creating a bar graph with a logarithmic scale for count helps to easily visualize the number of trees in each age category per species. The number of trees that did not have an age in the dataset was much higher than the number of trees in each age category, which made the graph skewed and the smaller values for the other age categories was hard to see and interpret. 
+This bar graph helps to answer the research question because we can easily see that there are more trees in the old and very old categories, while there are none in the young category. This shows that in more recent years (the last 20 years), there have been fewer elm and ash trees that are susceptible to invasive species planted in the city. 
+
+
+<!----------------------------------------------------------------------------->
+
+### 1.3 (2 points)
+
+Based on the operations that you've completed, how much closer are you to answering your research questions? Think about what aspects of your research questions remain unclear. Can your research questions be refined, now that you've investigated your data a bit more? Which research questions are yielding interesting results?
+
+<!------------------------- Write your answer here ---------------------------->
+I believe that from task 1.2, most of my research questions are answered and I have results that can be interpreted and provide answers for all of my research questions. 
+
+I think question 3 can be refined to investigate the relationship between the species of tree and either height or diameter, not both, as this was very difficult to answer with the questions in 1.2. 
+
+I believe that my first research question can be investigated further, as I only found how overall diverse the tree species were in each neighbourhood. The diversity could be further tested by finding out how many different genuses and cultivars are in each neighbourhood, and a relationship to where the trees are located and were planted in each neighborhood could be investigated as well.  
+
+I find that the results from my last question are most interesting because they show that there are less susceptible species being planted as more recent research shows that these trees are too high risk to grow and by reducing the planting of new trees, the spread of these invasive species can be slowed. I would be interested in researching this question further but the vancouver_trees dataset may not allow this because it does not contain any information on invasive species. 
+<!----------------------------------------------------------------------------->
+
+# Task 2: Tidy your data
+
+In this task, we will do several exercises to reshape our data. The goal here is to understand how to do this reshaping with the `tidyr` package.
+
+A reminder of the definition of *tidy* data:
+
+-   Each row is an **observation**
+-   Each column is a **variable**
+-   Each cell is a **value**
+
+### 2.1 (2 points)
+
+Based on the definition above, can you identify if your data is tidy or untidy? Go through all your columns, or if you have \>8 variables, just pick 8, and explain whether the data is untidy or tidy.
+
+<!--------------------------- Start your work below --------------------------->
+
+<!----------------------------------------------------------------------------->
+
+### 2.2 (4 points)
+
+Now, if your data is tidy, untidy it! Then, tidy it back to it's original state.
+
+If your data is untidy, then tidy it! Then, untidy it back to it's original state.
+
+Be sure to explain your reasoning for this task. Show us the "before" and "after".
+
+<!--------------------------- Start your work below --------------------------->
+
+<!----------------------------------------------------------------------------->
+
+### 2.3 (4 points)
+
+Now, you should be more familiar with your data, and also have made progress in answering your research questions. Based on your interest, and your analyses, pick 2 of the 4 research questions to continue your analysis in the remaining tasks:
+
+<!-------------------------- Start your work below ---------------------------->
+
+1.  *FILL_THIS_IN*
+2.  *FILL_THIS_IN*
+
+<!----------------------------------------------------------------------------->
+
+Explain your decision for choosing the above two research questions.
+
+<!--------------------------- Start your work below --------------------------->
+
+<!----------------------------------------------------------------------------->
+
+Now, try to choose a version of your data that you think will be appropriate to answer these 2 questions. Use between 4 and 8 functions that we've covered so far (i.e. by filtering, cleaning, tidy'ing, dropping irrelevant columns, etc.).
+
+(If it makes more sense, then you can make/pick two versions of your data, one for each research question.)
+
+<!--------------------------- Start your work below --------------------------->
+
+# Task 3: Modelling
+
+## 3.0 (no points)
+
+Pick a research question from 1.2, and pick a variable of interest (we'll call it "Y") that's relevant to the research question. Indicate these.
+
+<!-------------------------- Start your work below ---------------------------->
+
+**Research Question**: FILL_THIS_IN
+
+**Variable of interest**: FILL_THIS_IN
+
+<!----------------------------------------------------------------------------->
+
+## 3.1 (3 points)
+
+Fit a model or run a hypothesis test that provides insight on this variable with respect to the research question. Store the model object as a variable, and print its output to screen. We'll omit having to justify your choice, because we don't expect you to know about model specifics in STAT 545.
+
+-   **Note**: It's OK if you don't know how these models/tests work. Here are some examples of things you can do here, but the sky's the limit.
+
+    -   You could fit a model that makes predictions on Y using another variable, by using the `lm()` function.
+    -   You could test whether the mean of Y equals 0 using `t.test()`, or maybe the mean across two groups are different using `t.test()`, or maybe the mean across multiple groups are different using `anova()` (you may have to pivot your data for the latter two).
+    -   You could use `lm()` to test for significance of regression coefficients.
+
+<!-------------------------- Start your work below ---------------------------->
+
+<!----------------------------------------------------------------------------->
+
+## 3.2 (3 points)
+
+Produce something relevant from your fitted model: either predictions on Y, or a single value like a regression coefficient or a p-value.
+
+-   Be sure to indicate in writing what you chose to produce.
+-   Your code should either output a tibble (in which case you should indicate the column that contains the thing you're looking for), or the thing you're looking for itself.
+-   Obtain your results using the `broom` package if possible. If your model is not compatible with the broom function you're needing, then you can obtain your results by some other means, but first indicate which broom function is not compatible.
+
+<!-------------------------- Start your work below ---------------------------->
+
+<!----------------------------------------------------------------------------->
+
+# Task 4: Reading and writing data
+
+Get set up for this exercise by making a folder called `output` in the top level of your project folder / repository. You'll be saving things there.
+
+## 4.1 (3 points)
+
+Take a summary table that you made from Task 1, and write it as a csv file in your `output` folder. Use the `here::here()` function.
+
+-   **Robustness criteria**: You should be able to move your Mini Project repository / project folder to some other location on your computer, or move this very Rmd file to another location within your project repository / folder, and your code should still work.
+-   **Reproducibility criteria**: You should be able to delete the csv file, and remake it simply by knitting this Rmd file.
+
+<!-------------------------- Start your work below ---------------------------->
+
+<!----------------------------------------------------------------------------->
+
+## 4.2 (3 points)
+
+Write your model object from Task 3 to an R binary file (an RDS), and load it again. Be sure to save the binary file in your `output` folder. Use the functions `saveRDS()` and `readRDS()`.
+
+-   The same robustness and reproducibility criteria as in 4.1 apply here.
+
+<!-------------------------- Start your work below ---------------------------->
+
+<!----------------------------------------------------------------------------->
+
+# Overall Reproducibility/Cleanliness/Coherence Checklist
+
+Here are the criteria we're looking for.
+
+## Coherence (0.5 points)
+
+The document should read sensibly from top to bottom, with no major continuity errors.
+
+The README file should still satisfy the criteria from the last milestone, i.e. it has been updated to match the changes to the repository made in this milestone.
+
+## File and folder structure (1 points)
+
+You should have at least three folders in the top level of your repository: one for each milestone, and one output folder. If there are any other folders, these are explained in the main README.
+
+Each milestone document is contained in its respective folder, and nowhere else.
+
+Every level-1 folder (that is, the ones stored in the top level, like "Milestone1" and "output") has a `README` file, explaining in a sentence or two what is in the folder, in plain language (it's enough to say something like "This folder contains the source for Milestone 1").
+
+## Output (1 point)
+
+All output is recent and relevant:
+
+-   All Rmd files have been `knit`ted to their output md files.
+-   All knitted md files are viewable without errors on Github. Examples of errors: Missing plots, "Sorry about that, but we can't show files that are this big right now" messages, error messages from broken R code
+-   All of these output files are up-to-date -- that is, they haven't fallen behind after the source (Rmd) files have been updated.
+-   There should be no relic output files. For example, if you were knitting an Rmd to html, but then changed the output to be only a markdown file, then the html file is a relic and should be deleted.
+
+Our recommendation: delete all output files, and re-knit each milestone's Rmd file, so that everything is up to date and relevant.
+
+## Tagged release (0.5 point)
+
+You've tagged a release for Milestone 2.
+
+### Attribution
+
+Thanks to Victor Yuan for mostly putting this together.
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
