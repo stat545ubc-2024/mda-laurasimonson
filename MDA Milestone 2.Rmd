@@ -63,17 +63,6 @@ First, write out the 4 research questions you defined in milestone 1 were. This 
 4.  Since this data started to be collected, have trends of planting trees susceptible to invasive species(American Elm, Green Ash, White Ash, and Black Ash) declined? 
 <!----------------------------------------------------------------------------->
 
-DElETE
-```{r}
-colnames(vancouver_trees)
-vancouver_trees
-```
-```{r}
-category_counts <- vancouver_trees %>%
-  count(common_name)
-print(category_counts)
-```
-
 Here, we will investigate your data using various data manipulation and graphing functions.
 
 ### 1.2 (8 points)
