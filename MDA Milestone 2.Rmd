@@ -68,6 +68,11 @@ DElETE
 colnames(vancouver_trees)
 vancouver_trees
 ```
+```{r}
+category_counts <- vancouver_trees %>%
+  count(common_name)
+print(category_counts)
+```
 
 Here, we will investigate your data using various data manipulation and graphing functions.
 
@@ -251,7 +256,13 @@ A reminder of the definition of *tidy* data:
 Based on the definition above, can you identify if your data is tidy or untidy? Go through all your columns, or if you have \>8 variables, just pick 8, and explain whether the data is untidy or tidy.
 
 <!--------------------------- Start your work below --------------------------->
+```{r}
+small_vancouver_trees <- vancouver_trees %>%
+  select(tree_id, common_name, genus_name, species_name, neighbourhood_name, height_range_id, diameter, date_planted)
+print(small_vancouver_trees)
+```
 
+Based on my new tibble created from the vancouver_trees dataset that has only 8 columns, my data is tidy. Each of the rows in this tibble contains the information and observations for one individual tree and each of the columns is a distinct variable that does not have observations in multiple columns measuring the same thing. There are some rows that have no data, as indicated by the NA but this does not mean my data is untidy, it is only indicating that there is a missing value in that cell. 
 <!----------------------------------------------------------------------------->
 
 ### 2.2 (4 points)
@@ -263,6 +274,31 @@ If your data is untidy, then tidy it! Then, untidy it back to it's original stat
 Be sure to explain your reasoning for this task. Show us the "before" and "after".
 
 <!--------------------------- Start your work below --------------------------->
+#### Before Dataset (TIDY)
+```{r}
+print(small_vancouver_trees)
+```
+#### During Dataset (UNTIDY)
+```{r}
+small_vancouver_trees_untidy <- small_vancouver_trees %>%
+  unite("scientific_name", genus_name, species_name, sep = " ") %>%
+  mutate(maple = if_else(str_detect(common_name, "MAPLE"), "Maple", "Not Maple")) %>%
+  pivot_longer(cols = maple, 
+               names_to = "Maple",
+               values_to = "category_status")
+print(small_vancouver_trees_untidy)
+```
+This data is untidy because the two separate name columns have been combined into one column, scientific name. This is untidy because now each cell contains two values. This new dataset is also untidy due to the pivot longer function creating a new category for the tree species being either maple trees or not maple trees. This is untidy because this column was already in the common name column and the new column does not contain a different variable or new information for the tree species. The pivot longer function also created a new column called maple and every row contains maple, this is also untidy because these are not observations for each of the tree species, as the species that are not maple have this maple cell, which shows that each tree in a row does not have an observation specifically for that row. 
+
+#### After Dataset (TIDY)
+```{r}
+small_vancouver_trees_untidy %>%
+  separate(scientific_name, into = c("genus_name", "species_name")) %>%
+  select(-Maple, -category_status) -> small_vancouver_trees_tidy
+print(small_vancouver_trees_tidy)
+ 
+```
+This tibble contains the re-tidied data after I untidied it. I separated the scientific_name column into the genus and species names again, making the data tidy because now each cell contains only one value. I used the select and - functions to remove the maple and category_status functions from the untidy tibble, to make this data tidy again. I was not able to use pivot_wider, the reverse of pivot_longer, to remove the new columns because there were too many warnings and rows that were removed because there was no data for the rows. However, using the select function I was able to revert my untidy data into a tidy data tibble again. 
 
 <!----------------------------------------------------------------------------->
 
@@ -272,15 +308,16 @@ Now, you should be more familiar with your data, and also have made progress in 
 
 <!-------------------------- Start your work below ---------------------------->
 
-1.  *FILL_THIS_IN*
-2.  *FILL_THIS_IN*
+1. How does tree species diversity vary across different neighbourhoods of Vancouver?
+2. Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
 
 <!----------------------------------------------------------------------------->
 
 Explain your decision for choosing the above two research questions.
 
 <!--------------------------- Start your work below --------------------------->
-
+I chose to continue answering the first question because I do not think I have fully uncovered how diverse the tree species vary across the different neighbourhoods in Vancouver. I believe I should be able to look into this association by finding more information on how groups of trees vary across each neighbourhood, in terms of different genuses and cultivars. I also think that looking into where trees were planted can help indicate how diverse the neighbourhoods are.  
+I chose to continue with the second question because I do not think I answered this question very well or clearly in task 1, I think this could be better explained by looking at size as the two separate variables instead of combining them and I also think that the relationship between the specific species or genuses and size can be further investigated. 
 <!----------------------------------------------------------------------------->
 
 Now, try to choose a version of your data that you think will be appropriate to answer these 2 questions. Use between 4 and 8 functions that we've covered so far (i.e. by filtering, cleaning, tidy'ing, dropping irrelevant columns, etc.).
@@ -288,6 +325,16 @@ Now, try to choose a version of your data that you think will be appropriate to 
 (If it makes more sense, then you can make/pick two versions of your data, one for each research question.)
 
 <!--------------------------- Start your work below --------------------------->
+```{r}
+new_van_trees <- vancouver_trees_size %>%
+  arrange(neighbourhood_name, common_name) %>%
+  drop_na() %>% 
+  select(-civic_number, -assigned, -root_barrier, -plant_area, -curb, - std_street) %>%
+  relocate(tree_id, common_name, genus_name, species_name, cultivar_name, neighbourhood_name, on_street, on_street_block, street_side_name, longitude, latitude, height_range_id, diameter, size, date_planted)
+print(new_van_trees)
+```
+
+<!----------------------------------------------------------------------------->\
 
 # Task 3: Modelling
 
@@ -297,9 +344,10 @@ Pick a research question from 1.2, and pick a variable of interest (we'll call i
 
 <!-------------------------- Start your work below ---------------------------->
 
-**Research Question**: FILL_THIS_IN
+**Research Question**: How does tree species diversity vary across different neighbourhoods of Vancouver?
 
-**Variable of interest**: FILL_THIS_IN
+**Variable of interest**: Y = tree species, common_name
+Tree species is my variable of interest, or dependent variable because it will be affect by the independent variable, neighbourhood. 
 
 <!----------------------------------------------------------------------------->
 
@@ -314,6 +362,22 @@ Fit a model or run a hypothesis test that provides insight on this variable with
     -   You could use `lm()` to test for significance of regression coefficients.
 
 <!-------------------------- Start your work below ---------------------------->
+```{r}
+species_per_neighborhood <- new_van_trees %>%
+  group_by(neighbourhood_name) %>%
+  summarize(common_name = n_distinct(common_name))
+print(species_per_neighborhood)
+ntrees_per_species <- new_van_trees %>%
+  group_by(neighbourhood_name, common_name) %>%
+  summarize(n = n())
+print(ntrees_per_species)
+```
+```{r}
+anova_test <- aov(n ~ neighbourhood_name, data = ntrees_per_species)
+summary(anova_test)
+```
+The high F statistic means that the variability between different neighbourhoods is higher compared to the tree species variability within the neighborhoods. The highly signficant p-value indicates that the number of trees species among different neighbourhoods is statistically signficant. 
+
 
 <!----------------------------------------------------------------------------->
 
@@ -326,6 +390,11 @@ Produce something relevant from your fitted model: either predictions on Y, or a
 -   Obtain your results using the `broom` package if possible. If your model is not compatible with the broom function you're needing, then you can obtain your results by some other means, but first indicate which broom function is not compatible.
 
 <!-------------------------- Start your work below ---------------------------->
+```{r}
+anova_test <- aov(n ~ neighbourhood_name, data = ntrees_per_species)
+broom::tidy(anova_test)
+```
+I chose to produce a p-value from an anova test to show the statistical significance of tree species diversity amongst the different neighbourhoods of Vancouver. In this tibble, the p.value column contains the p-value from the anova test. This p-value is very small which indicates that there is high statistical significance for tree species diversity in the different neighbourhoods. 
 
 <!----------------------------------------------------------------------------->
 
@@ -341,6 +410,11 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 -   **Reproducibility criteria**: You should be able to delete the csv file, and remake it simply by knitting this Rmd file.
 
 <!-------------------------- Start your work below ---------------------------->
+```{r}
+library("here")
+write.csv(tree_species_count, 
+          file = here::here("Output", "tree_species_count.csv"))
+```
 
 <!----------------------------------------------------------------------------->
 
@@ -351,6 +425,11 @@ Write your model object from Task 3 to an R binary file (an RDS), and load it ag
 -   The same robustness and reproducibility criteria as in 4.1 apply here.
 
 <!-------------------------- Start your work below ---------------------------->
+```{r}
+saveRDS(anova_test,
+        file = here::here("Output", "anova_test.rds"))
+readRDS(here::here("Output", "anova_test.rds"))
+```
 
 <!----------------------------------------------------------------------------->
 
