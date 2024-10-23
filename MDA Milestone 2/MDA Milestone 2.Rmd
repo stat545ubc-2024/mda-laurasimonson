@@ -3,9 +3,7 @@ title: "Mini Data Analysis Milestone 2"
 output: github_document
 ---
 
-*To complete this milestone, you can either edit [this `.rmd` file](https://raw.githubusercontent.com/UBC-STAT/stat545.stat.ubc.ca/master/content/mini-project/mini-project-2.Rmd) directly. Fill in the sections that are commented out with `<!--- start your work here--->`. When you are done, make sure to knit to an `.md` file by changing the output in the YAML header to `github_document`, before submitting a tagged release on canvas.*
-
-# Welcome to the rest of your mini data analysis project!
+# Welcome to the Rest of your Mini Data Analysis Project!
 
 In Milestone 1, you explored your data. and came up with research questions. This time, we will finish up our mini data analysis and obtain results for your data by:
 
@@ -58,10 +56,14 @@ First, write out the 4 research questions you defined in milestone 1 were. This 
 <!-------------------------- Start your work below ---------------------------->
 
 1.  How does tree species diversity vary across different neighbourhoods of Vancouver?
+
 2.  Is there a relationship between the age of the trees and how wide their diameter is?
+
 3.  Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
-4.  Since this data started to be collected, have trends of planting trees susceptible to invasive species(American Elm, Green Ash, White Ash, and Black Ash) declined? 
-<!----------------------------------------------------------------------------->
+
+4.  Since this data started to be collected, have trends of planting trees susceptible to invasive species (American Elm, Green Ash, and White Ash) declined?
+
+    <!----------------------------------------------------------------------------->
 
 Here, we will investigate your data using various data manipulation and graphing functions.
 
@@ -93,9 +95,11 @@ Using variables and/or tables you made in one of the "Summarizing" tasks:
 Make sure it's clear what research question you are doing each operation for!
 
 <!------------------------- Start your work below ----------------------------->
-#### Question 1: How does tree species diversity vary across different neighbourhoods of Vancouver?
 
-###### 4. Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data. 
+### Question 1: How does tree species diversity vary across different neighbourhoods of Vancouver?
+
+#### 4. Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data.
+
 ```{r}
 tree_species_count <- vancouver_trees %>%
   group_by(neighbourhood_name, common_name) %>%
@@ -105,31 +109,32 @@ tree_species_count <- vancouver_trees %>%
 print(tree_species_count)
 ```
 
-By using the group by function, I was able to sort the vancouver_trees dataset into each of the neighbourhoods and then further sort the data into each species of tree, using their common names, which shows the number of each tree species present in each neighbourhood measured in the vancouver_trees dataset. Then using the mutate function, I was able to find the proportion of each species of tree in each neighbourhood. The proportions for each of the tree species are low, which indicates that the neighbourhoods in vancouver have a high amount of tree species diversity. 
+By using the group_by function, I was able to organize the vancouver_trees dataset by the different neighbourhoods, and then further sort the data into each species of tree, using their common names. I then used the summarize function to show the number of trees of each species present in each neighbourhood in the dataset. Then using the mutate function, I was able to find the proportion of each species of tree in each neighbourhood. The proportions for each of the tree species are low, which indicates that the neighbourhoods in vancouver have a high amount of tree species diversity.
 
-###### 6.  Make a graph where it makes sense to customize the alpha transparency.
-```{r}
+#### 6. Make a graph where it makes sense to customize the alpha transparency.
+
+```{r plot-wider, fig.width=15, fig.height=10}
 ggplot(tree_species_count, aes(x = neighbourhood_name, y = n)) +
   geom_jitter(alpha = 0.25, size = 1, color = "blue") +
   scale_y_continuous(breaks = seq(0, 1000, by = 50)) + 
   labs(title = "Tree Species in Each Vancouver Neighbourhood", x = "Neighbourhood Name", y = "Number of Trees per Species") +
   theme_minimal()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12))
 ```
 
-This jitter plot shows the number of trees of each species that are in each of the neighbourhoods in the vancouver_trees dataset. The number of trees of each species was found in the first question, and stored in the variable tree_Species_count. The alpha transparency in this jitter plot shows that most of the tree species in each neighbourhood have less than 50 individual trees, as indicated by the darker blue color. This jitter plot also shows that very few neighbourhoods have tree species with more than 300 individual trees. This plot helps answer the research question, how does tree species diversity vary across neighbourhoods, because the jitter plot shows that the different neighbourhoods have similar numbers of trees and species. All of the neighbourhoods have the highest number of trees per species between 0 and 50, as indicated by the higher density of points. This graph also shows that a few tree species have more than 200 individual trees, which is consistent across the different neighbourhoods as well. Overall, all of the neighbourhoods have a high amount of tree diversity within them. 
+This jitter plot shows the number of trees of each species that are in each neighbourhood in the vancouver_trees dataset. The number of trees of each species was found in the first question, and stored as tree_species_count. The alpha transparency in this jitter plot shows that most of the tree species in each neighbourhood have less than 50 individual trees, as indicated by the darker blue color, and very few neighbourhoods have tree species with more than 300 individual trees, as indicated by the light blue points. This plot helps answer the research question, how does tree species diversity vary across Vancouver's neighbourhoods, because the plot shows that the different neighbourhoods have similar numbers of individual trees per species, between 0 and 50, indicating that there is a high amount of species diversity in the neighborhoods.
 
+### Question 2: Is there a relationship between the age of the trees and how wide their diameter is?
 
-#### Question 2: Is there a relationship between the age of the trees and how wide their diameter is?
+#### 3. Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks!
 
-###### 3.  Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks!
 ```{r}
 vancouver_trees_age <- vancouver_trees %>%
   mutate(years_old = as.numeric(difftime(Sys.Date(), date_planted, units = "days")) / 365,
   age = case_when(
     years_old < 10 ~ "young",
-    years_old >= 10 & years_old <= 20 ~ "medium", 
-    years_old >= 20 & years_old <= 30 ~ "old", 
+    years_old >= 10 & years_old < 20 ~ "medium", 
+    years_old >= 20 & years_old < 30 ~ "old", 
     years_old >= 30 ~ "very old"
   ))
 print(vancouver_trees_age)
@@ -138,10 +143,10 @@ age_counts <- vancouver_trees_age %>%
 print(age_counts)
 ```
 
-The new categorical variable, age, which has four groups, was created using how old the trees were. The age of trees was measured by a new variable, years_old which was calculated from the date that the trees were planted on. The four groups in the new age category are young, which is less than 10 years old, medium, which is between 10 and 20 years old, old, which is between 20 and 30 years old, and very old, which is trees older than 30 years old. To see the number of trees that fall into each category I used the count function which shows that majority of the trees did not have a data planted recorded, but of the trees that do have a known age, most of the trees are medium or old in age, with young trees being the smallest group. 
-This will help answer the research question because the new age variable tells how old the trees are based on when they were planted, which can be used to determine if older trees have a larger diameter. 
+The new categorical variable, age, has four groups and was created based on when the trees were planted. The age of trees is stored as a new variable, years_old, and was calculated as the number of years from today's date to when the trees were planted. The four groups in the new age category are young, which is less than 10 years old, medium, which is between 10 and 20 years old, old, which is between 20 and 30 years old, and very old, which is trees older than 30 years old. To see the number of trees that fall into each category I used the count function which shows that majority of the trees did not have a data planted recorded, but of the trees that do have a known age, most of the trees are medium or old in age, with young trees being the smallest group. This will help answer the research question because the new age variable tells how old the trees are based on when they were planted, which can be used to determine if older trees have a larger diameter.
 
-###### 7.  Create a graph that has at least two geom layers.
+#### 7. Create a graph that has at least two geom layers.
+
 ```{r}
 ggplot(vancouver_trees_age, aes(x = years_old, y = diameter, color = age)) +
   geom_point(alpha = 0.5, size = 1) +
@@ -150,36 +155,63 @@ ggplot(vancouver_trees_age, aes(x = years_old, y = diameter, color = age)) +
   geom_smooth(method = "lm", color = "black") +
   labs(title = "Relationship Between Tree Age and Diameter", x = "Age (years)", y = "Diameter")
 ```
-This graph shows the relationship between how old the trees in the vancouver_trees dataset are and how wide their diameter is. The units used to measure diameter are unknown, and were not provided in the dataset. From the line of best fit shown in black, we can see that there is a trend of increasing diameter size with an increase in age of the trees. This graph helps answer the research question, is there a relationship between tree age and diameter size, because it shows that there is a positve correlation between age of the trees and their diameter size, as the old and very old trees have larger diameters and the young trees have smaller diameters. 10 trees were removed from this dataset to make the graph easier to read, as there were 10 trees with diameters above 100, which made the line of best fit not visible.  
 
-Question 3: Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
+This graph shows the relationship between how old the trees in the vancouver_trees dataset are and how wide their diameter is. The units used to measure diameter are unknown, and were not provided in the dataset. From the line of best fit shown in black, we can see that there is a trend of increasing diameter size with an increase in age of the trees. This graph helps answer the research question, is there a relationship between tree age and diameter size, because it shows that there is a positive correlation between age of the trees and their diameter size, as the old and very old trees have larger diameters and the young trees have smaller diameters. 10 trees were removed from this dataset to make the graph easier to read, as there were 10 trees with diameters above 100, which made the line of best fit not visible.
 
-3.  Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks
+### Question 3: Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
+
+#### 3. Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks
+
 ```{r}
 vancouver_trees_size <- vancouver_trees %>%
   mutate(size = case_when(
     height_range_id < 3 & diameter < 20 ~ "Small",
-    height_range_id >= 3 & height_range_id < 4 & diameter < 40 ~ "Medium", 
+    height_range_id >= 3 & height_range_id < 4 & diameter >= 20 & diameter < 40 ~ "Medium", 
     height_range_id >= 4 & diameter >= 40 ~ "Large"
   ))
+
 vancouver_trees_size %>%
 group_by(size) %>%
   summarize(n = n())
 print(vancouver_trees_size)
 ```
 
-To answer the research question, is there a correlation between tree species and size of the tree, determined by height and diameter, I created a new categorical variable, size, using two numeric variables, height_range_id and diameter. The size variable has 3 groups, small, which is trees with a height ID of less than 3 and a diameter of less than 20, medium, which includes trees with a height range of 3 and 4 and diameter of between 20 and 40, and large trees which includes trees with a height ID of 4 and 5 and a diameter of larger than 40. The units of diameter and how tall each of the height range IDs are were not given in the dataset. I chose to create this dataset with two numeric variables instead of 1 so that size, which combines height and diameter, can be used in the second question to further answer the research question. 
+To answer the research question, is there a correlation between tree species and size of the tree, determined by height and diameter, I created a new categorical variable, size, using two numeric variables, height_range_id and diameter. The size variable has 3 groups, small, which is trees with a height ID of less than 3 and a diameter of less than 20, medium, which includes trees with a height range of 3 and 4 and diameter between 20 and 40, and large trees which includes trees with a height ID of 4 and 5 and a diameter of larger than 40. The units of diameter and how tall each of the height range IDs are were not given in the dataset. I chose to create this dataset with two numeric variables instead of one so that size, which combines height and diameter, can be used in the second question to further answer the research question.
 
-6.  !!!
+#### 7. Create a graph that has at least two geom layers.
 
 ```{r}
-
+size_data <- vancouver_trees_size %>%
+  filter(!is.na(size)) %>%
+  group_by(genus_name, size) %>%
+  summarize(count=n()) %>%
+  
+print(size_data)
 ```
 
+```{r}
+library(ggbreak)
+```
 
-####Question 4: Since this data started to be collected, have trends of planting trees susceptible to invasive species(American Elm, Green Ash and White Ash) declined? 
+```{r plot-wider, fig.width=25, fig.height=12}
+ggplot(size_data, aes(x = genus_name, y = count, fill = size)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = count), position = position_stack(vjust=0.5), size = 3) +
+  theme_minimal() +
+  scale_y_break(c(6000, 19000)) +
+  labs(title = "Size of Tree Species in Vancouver", x = "Tree Genera", y = "Count") +
+  scale_fill_manual(values = c("Large" = "#117733",
+                               "Medium" = "#CC6677",
+                               "Small" = "#6699CC")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+```
 
-######4.  Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data. Do not use the function `table()`!
+To answer the research question, is there a relationship between tree species and size, I created a stacked bar graph showing the counts of how many trees are categorized into each size group for each genera of trees. I had to use genus instead of species for this graph because there were too many different species of tree to accurately be represented on the graph, the different species were too small and could not be interpreted. I also introduced a break into the y-axis scale, because two genera of trees, Acer and Prunus, had too many trees and were causing the other tree genera with fewer individual trees to be not visible on the graph. From this graph, we can see that less than half of the genera have trees in the large category. This indicates that there is a relationship between the type of tree and how big it is.
+
+### Question 4: Since this data started to be collected, have trends of planting trees susceptible to invasive species(American Elm, Green Ash and White Ash) declined?
+
+#### 4. Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data. Do not use the function `table()`!
+
 ```{r}
 susceptible_trees <- vancouver_trees_age %>%
   filter(common_name == "AMERICAN ELM" |
@@ -193,10 +225,11 @@ species_age <- susceptible_trees %>%
   mutate(proportion = count/sum(count))
 print(species_age)
 ```
-To answer this research question, I first created a new tibble that contains only the species of interest, American Elm, Green Ash and White Ash. American Elm trees are susceptible to Dutch Elm Disease and Ash trees native to Canada, Green and White Ash, are susceptible to Emerald Ash Borer. In an effort to reduce the effect of these invasive species and stop their spread, many cities stopped planting these trees in more recent years, which is where my research question comes from. 
-The count column shows the number of trees per species in each age category. From this, we can see that most of the trees in each species are in the old category and none of the species are in the young category, which is less than 10 years old. The proportions of the number of trees in each age category per species also shows that most of the trees are in the old category. These findings support the research question that there has been a decline in planting susceptible trees, as there are no young trees and fewer medium aged trees compared to old and very old trees. 
 
-5.  Create a graph of your choosing, make one of the axes logarithmic, and format the axes labels so that they are "pretty" or easier to read.
+To answer this research question, I first created a new tibble that contains only the species of interest, American Elm, Green Ash and White Ash. American Elm trees are susceptible to Dutch Elm Disease and Ash trees native to Canada, Green and White Ash, are susceptible to Emerald Ash Borer. In an effort to reduce the effect of these invasive species and stop their spread, many cities have stopped planting these trees in more recent years, which is where my research question comes from. The count column shows the number of trees per species in each age category. From this, we can see that most of the trees in each species are in the old category and none of the species are in the young category, which is less than 10 years old. The proportions of the number of trees in each age category per species also shows that most of the trees are in the old category. These findings support the research question that there has been a decline in planting susceptible trees, as there are no young trees and fewer medium aged trees compared to old and very old trees.
+
+#### 5. Create a graph of your choosing, make one of the axes logarithmic, and format the axes labels so that they are "pretty" or easier to read.
+
 ```{r}
 ggplot(species_age, aes(x = factor(age, levels = c("young", "medium", "old", "very old", "NA")),, y = count, fill = common_name)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -210,9 +243,8 @@ ggplot(species_age, aes(x = factor(age, levels = c("young", "medium", "old", "ve
                                "WHITE ASH" = "palegreen")) + 
   theme_minimal()
 ```
-Creating a bar graph with a logarithmic scale for count helps to easily visualize the number of trees in each age category per species. The number of trees that did not have an age in the dataset was much higher than the number of trees in each age category, which made the graph skewed and the smaller values for the other age categories was hard to see and interpret. 
-This bar graph helps to answer the research question because we can easily see that there are more trees in the old and very old categories, while there are none in the young category. This shows that in more recent years (the last 20 years), there have been fewer elm and ash trees that are susceptible to invasive species planted in the city. 
 
+Creating a bar graph with a logarithmic scale for count helps to easily visualize the number of trees in each age category per species. The number of trees that did not have an age in the dataset was much higher than the number of trees in each age category, which made the graph skewed and the smaller values for the other age categories was hard to see and interpret. This bar graph helps to answer the research question because we can easily see that there are more trees in the old and very old categories, while there are none in the young category. This shows that in more recent years (the last 20 years), there have been fewer elm and ash trees that are susceptible to invasive species planted in the Vancouver.
 
 <!----------------------------------------------------------------------------->
 
@@ -221,13 +253,15 @@ This bar graph helps to answer the research question because we can easily see t
 Based on the operations that you've completed, how much closer are you to answering your research questions? Think about what aspects of your research questions remain unclear. Can your research questions be refined, now that you've investigated your data a bit more? Which research questions are yielding interesting results?
 
 <!------------------------- Write your answer here ---------------------------->
-I believe that from task 1.2, most of my research questions are answered and I have results that can be interpreted and provide answers for all of my research questions. 
 
-I think question 3 can be refined to investigate the relationship between the species of tree and either height or diameter, not both, as this was very difficult to answer with the questions in 1.2. 
+I believe that from task 1.2, most of my research questions are answered and I have results that can be interpreted and provide answers for all of my research questions.
 
-I believe that my first research question can be investigated further, as I only found how overall diverse the tree species were in each neighbourhood. The diversity could be further tested by finding out how many different genuses and cultivars are in each neighbourhood, and a relationship to where the trees are located and were planted in each neighborhood could be investigated as well.  
+I think question 3 can be refined to investigate the relationship between the species of tree and size, while taking into account the age of the trees, as age could be a confounding variable that is affecting the size of the trees. I also believe that this question could be further investigated because in task 1.2, I was only able to look at the relationship between size and the genera of the trees, not the specific tree species.
 
-I find that the results from my last question are most interesting because they show that there are less susceptible species being planted as more recent research shows that these trees are too high risk to grow and by reducing the planting of new trees, the spread of these invasive species can be slowed. I would be interested in researching this question further but the vancouver_trees dataset may not allow this because it does not contain any information on invasive species. 
+I also believe that my first research question can be investigated further, as I only found how overall diverse the tree species were in each neighbourhood. The diversity could be further tested by looking into the relationship between where the trees were planted in each neighborhood, which can provide another insight into the diversity of tree species representation in the neighborhoods.
+
+I find the results from my last question most interesting because these results show that there are less susceptible species being planted. As more research shows that these trees are too high risk to be planted and by reducing the amount of these species, spread of invasive species can be slowed. I would be interested in researching this question further but the vancouver_trees dataset may not allow this because it does not contain any information on invasive species.
+
 <!----------------------------------------------------------------------------->
 
 # Task 2: Tidy your data
@@ -245,13 +279,15 @@ A reminder of the definition of *tidy* data:
 Based on the definition above, can you identify if your data is tidy or untidy? Go through all your columns, or if you have \>8 variables, just pick 8, and explain whether the data is untidy or tidy.
 
 <!--------------------------- Start your work below --------------------------->
+
 ```{r}
 small_vancouver_trees <- vancouver_trees %>%
   select(tree_id, common_name, genus_name, species_name, neighbourhood_name, height_range_id, diameter, date_planted)
 print(small_vancouver_trees)
 ```
 
-Based on my new tibble created from the vancouver_trees dataset that has only 8 columns, my data is tidy. Each of the rows in this tibble contains the information and observations for one individual tree and each of the columns is a distinct variable that does not have observations in multiple columns measuring the same thing. There are some rows that have no data, as indicated by the NA but this does not mean my data is untidy, it is only indicating that there is a missing value in that cell. 
+Based on my new tibble created from the vancouver_trees dataset that has 8 columns, my data is tidy. Each of the rows in this tibble contains the information and observations for one individual tree and each of the columns is a distinct variable that does not have observations in multiple columns measuring the same thing. There are some rows that have no data, as indicated by the NA but this does not mean my data is untidy, it is only indicating that no data was collected in that cell.
+
 <!----------------------------------------------------------------------------->
 
 ### 2.2 (4 points)
@@ -263,11 +299,15 @@ If your data is untidy, then tidy it! Then, untidy it back to it's original stat
 Be sure to explain your reasoning for this task. Show us the "before" and "after".
 
 <!--------------------------- Start your work below --------------------------->
+
 #### Before Dataset (TIDY)
+
 ```{r}
 print(small_vancouver_trees)
 ```
+
 #### During Dataset (UNTIDY)
+
 ```{r}
 small_vancouver_trees_untidy <- small_vancouver_trees %>%
   unite("scientific_name", genus_name, species_name, sep = " ") %>%
@@ -277,17 +317,20 @@ small_vancouver_trees_untidy <- small_vancouver_trees %>%
                values_to = "category_status")
 print(small_vancouver_trees_untidy)
 ```
-This data is untidy because the two separate name columns have been combined into one column, scientific name. This is untidy because now each cell contains two values. This new dataset is also untidy due to the pivot longer function creating a new category for the tree species being either maple trees or not maple trees. This is untidy because this column was already in the common name column and the new column does not contain a different variable or new information for the tree species. The pivot longer function also created a new column called maple and every row contains maple, this is also untidy because these are not observations for each of the tree species, as the species that are not maple have this maple cell, which shows that each tree in a row does not have an observation specifically for that row. 
+
+This data is untidy because the two separate genus and species name columns have been combined into one column, scientific name. This is untidy because now each cell contains two values. This new dataset is also untidy due to the pivot longer function creating a new category for the tree species being either maple trees or not maple trees. This is untidy because this column was already in the common name column and the new column does not contain a different variable or new information for the tree species. The pivot longer function also created a new column called maple and every row contains the value maple. This also makes the dataset untidy because these are not observations for each of the tree species, as the species that are not maple have this maple value, which shows that each tree in a row does not have a specific observation.
 
 #### After Dataset (TIDY)
+
 ```{r}
-small_vancouver_trees_untidy %>%
+small_vancouver_trees_tidy <- small_vancouver_trees_untidy %>%
   separate(scientific_name, into = c("genus_name", "species_name")) %>%
-  select(-Maple, -category_status) -> small_vancouver_trees_tidy
+  select(-Maple, -category_status)
 print(small_vancouver_trees_tidy)
  
 ```
-This tibble contains the re-tidied data after I untidied it. I separated the scientific_name column into the genus and species names again, making the data tidy because now each cell contains only one value. I used the select and - functions to remove the maple and category_status functions from the untidy tibble, to make this data tidy again. I was not able to use pivot_wider, the reverse of pivot_longer, to remove the new columns because there were too many warnings and rows that were removed because there was no data for the rows. However, using the select function I was able to revert my untidy data into a tidy data tibble again. 
+
+This tibble contains the re-tidied data after I un-tidied it. I separated the scientific_name column into the genus and species names again, making the data tidy because now each cell contains only one value. I used the select and - functions to remove the maple and category_status functions from the untidy tibble, to make this data tidy again. I was not able to use pivot_wider, the reverse of pivot_longer, to remove the new columns because there were too many warnings and rows that were removed because there was no data for the rows. However, using the select function I was able to revert my untidy data into a tidy tibble again.
 
 <!----------------------------------------------------------------------------->
 
@@ -297,16 +340,18 @@ Now, you should be more familiar with your data, and also have made progress in 
 
 <!-------------------------- Start your work below ---------------------------->
 
-1. How does tree species diversity vary across different neighbourhoods of Vancouver?
-2. Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
+1.  How does tree species diversity vary across different neighbourhoods of Vancouver?
+2.  Is there a correlation between the species of tree and how big it is, in terms of height and diameter?
 
 <!----------------------------------------------------------------------------->
 
 Explain your decision for choosing the above two research questions.
 
 <!--------------------------- Start your work below --------------------------->
-I chose to continue answering the first question because I do not think I have fully uncovered how diverse the tree species vary across the different neighbourhoods in Vancouver. I believe I should be able to look into this association by finding more information on how groups of trees vary across each neighbourhood, in terms of different genuses and cultivars. I also think that looking into where trees were planted can help indicate how diverse the neighbourhoods are.  
-I chose to continue with the second question because I do not think I answered this question very well or clearly in task 1, I think this could be better explained by looking at size as the two separate variables instead of combining them and I also think that the relationship between the specific species or genuses and size can be further investigated. 
+
+I chose to continue answering the first question because I do not think I have fully uncovered how diverse the tree species vary across the different neighbourhoods in Vancouver, or if there is a significant difference in diversity across the neighbourhoods. I believe I should be able to look into this association by testing the significance of the species in each neighbourhood and by investigating the locations of where the trees were planted within each neighbourhood.
+I chose to continue with the second question because I do not think I fully answered this question in task 1, I think this could be better further investigated by looking into how the age of the tree also impacts the size and if the size of the trees is significantly determined by what species the tree is, not age or any other confounding variable.
+
 <!----------------------------------------------------------------------------->
 
 Now, try to choose a version of your data that you think will be appropriate to answer these 2 questions. Use between 4 and 8 functions that we've covered so far (i.e. by filtering, cleaning, tidy'ing, dropping irrelevant columns, etc.).
@@ -314,6 +359,7 @@ Now, try to choose a version of your data that you think will be appropriate to 
 (If it makes more sense, then you can make/pick two versions of your data, one for each research question.)
 
 <!--------------------------- Start your work below --------------------------->
+
 ```{r}
 new_van_trees <- vancouver_trees_size %>%
   arrange(neighbourhood_name, common_name) %>%
@@ -323,7 +369,7 @@ new_van_trees <- vancouver_trees_size %>%
 print(new_van_trees)
 ```
 
-<!----------------------------------------------------------------------------->\
+<!----------------------------------------------------------------------------->
 
 # Task 3: Modelling
 
@@ -335,8 +381,9 @@ Pick a research question from 1.2, and pick a variable of interest (we'll call i
 
 **Research Question**: How does tree species diversity vary across different neighbourhoods of Vancouver?
 
-**Variable of interest**: Y = tree species, common_name
-Tree species is my variable of interest, or dependent variable because it will be affect by the independent variable, neighbourhood. 
+**Variable of interest**: Y = tree species (common_name)
+
+Tree species is my variable of interest, or dependent variable, because it will be affect by the independent variable, neighbourhood.
 
 <!----------------------------------------------------------------------------->
 
@@ -351,6 +398,7 @@ Fit a model or run a hypothesis test that provides insight on this variable with
     -   You could use `lm()` to test for significance of regression coefficients.
 
 <!-------------------------- Start your work below ---------------------------->
+
 ```{r}
 species_per_neighborhood <- new_van_trees %>%
   group_by(neighbourhood_name) %>%
@@ -361,12 +409,11 @@ ntrees_per_species <- new_van_trees %>%
   summarize(n = n())
 print(ntrees_per_species)
 ```
+
 ```{r}
 anova_test <- aov(n ~ neighbourhood_name, data = ntrees_per_species)
 summary(anova_test)
 ```
-The high F statistic means that the variability between different neighbourhoods is higher compared to the tree species variability within the neighborhoods. The highly signficant p-value indicates that the number of trees species among different neighbourhoods is statistically signficant. 
-
 
 <!----------------------------------------------------------------------------->
 
@@ -379,11 +426,13 @@ Produce something relevant from your fitted model: either predictions on Y, or a
 -   Obtain your results using the `broom` package if possible. If your model is not compatible with the broom function you're needing, then you can obtain your results by some other means, but first indicate which broom function is not compatible.
 
 <!-------------------------- Start your work below ---------------------------->
+
 ```{r}
 anova_test <- aov(n ~ neighbourhood_name, data = ntrees_per_species)
 broom::tidy(anova_test)
 ```
-I chose to produce a p-value from an anova test to show the statistical significance of tree species diversity amongst the different neighbourhoods of Vancouver. In this tibble, the p.value column contains the p-value from the anova test. This p-value is very small which indicates that there is high statistical significance for tree species diversity in the different neighbourhoods. 
+
+I chose to produce a p-value from an anova test to show the statistical significance of tree species diversity among the different neighbourhoods of Vancouver. In this tibble, the p.value column contains the p-value from the anova test. This p-value is very small which indicates that there is high statistical significance for tree species diversity in the different neighbourhoods. The high F statistic also indicates that the variability between different neighbourhoods is higher compared to the tree species variability within each neighborhood.
 
 <!----------------------------------------------------------------------------->
 
@@ -399,6 +448,7 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 -   **Reproducibility criteria**: You should be able to delete the csv file, and remake it simply by knitting this Rmd file.
 
 <!-------------------------- Start your work below ---------------------------->
+
 ```{r}
 library("here")
 write.csv(tree_species_count, 
@@ -414,6 +464,7 @@ Write your model object from Task 3 to an R binary file (an RDS), and load it ag
 -   The same robustness and reproducibility criteria as in 4.1 apply here.
 
 <!-------------------------- Start your work below ---------------------------->
+
 ```{r}
 saveRDS(anova_test,
         file = here::here("Output", "anova_test.rds"))
