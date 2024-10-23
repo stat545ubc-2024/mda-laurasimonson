@@ -1,4 +1,4 @@
-## Output Folder 
+## README File for Output Folder 
 
 This folder contains two output files that were created in Milestone 2 of the Mini Data Analysis Assignment in Stat 545A. 
 
